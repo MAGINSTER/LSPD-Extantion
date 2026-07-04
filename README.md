@@ -1,4 +1,4 @@
-# Arizona RP Forum Helper
+# LSPD Forum Helper
 
 Это базовое расширение Chrome для форума forum.arizona-rp.com.
 

@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "Arizona RP Forum Helper",
+  "name": "LSPD Forum Helper",
   "version": "1.0.0",
   "description": "Удобное расширение для форума forum.arizona-rp.com",
   "permissions": ["storage", "tabs"],
   "host_permissions": ["https://forum.arizona-rp.com/*"],
   "action": {
-    "default_title": "Arizona RP Forum Helper",
+    "default_title": "LSPD Forum Helper",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.svg",

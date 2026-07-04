@@ -7,6 +7,17 @@
       url: 'https://discord.gg/hUAs9cy9S',
     },
   ];
+  const hideMenuStyleId = 'arizona-rp-helper-hide-menu-style';
+  const hideMenuSelectors = [
+    '.offCanvasMenu',
+    '.offCanvasMenu--nav',
+    '.p-sideNav',
+    '.p-sideNav.is-active',
+    '.p-nav',
+    'nav.p-nav',
+    '.p-sectionLinks',
+    '.p-sideNav .p-navEl',
+  ];
 
   function replaceForumLogo() {
     const logoImg = document.querySelector('img[alt^="Форум"]');
@@ -21,6 +32,18 @@
     logoImg.height = 36;
   }
 
+  function hideForumMenu() {
+    if (document.getElementById(hideMenuStyleId)) {
+      return;
+    }
+
+    const style = document.createElement('style');
+    style.id = hideMenuStyleId;
+    style.textContent = `${hideMenuSelectors.join(',')} { display: none !important; visibility: hidden !important; }`;
+    const head = document.head || document.documentElement;
+    head.appendChild(style);
+  }
+
   function replaceCustomLinks() {
     const anchors = Array.from(document.querySelectorAll('a'));
     customLinks.forEach(({ label, url }) => {
@@ -29,6 +52,38 @@
         target.href = url;
         target.target = '_blank';
         target.rel = 'noopener noreferrer';
+      }
+    });
+  }
+
+  function removeCollaborationLink() {
+    const anchors = Array.from(document.querySelectorAll('a'));
+    const target = anchors.find((anchor) => anchor.textContent.trim().toLowerCase() === 'сотрудничество');
+    if (target) {
+      const parent = target.closest('li') || target.closest('.p-navEl') || target.parentElement;
+      if (parent) {
+        parent.remove();
+        return;
+      }
+      target.remove();
+    }
+  }
+
+  function keepOnlyAllowedComplaints() {
+    const anchors = Array.from(document.querySelectorAll('a'));
+    anchors.forEach((anchor) => {
+      const text = anchor.textContent.trim().toLowerCase();
+      if (!text) {
+        return;
+      }
+
+      if (text.startsWith('жалобы') && !text.includes('tucson')) {
+        const parent = anchor.closest('li') || anchor.closest('.p-navEl') || anchor.parentElement;
+        if (parent) {
+          parent.remove();
+        } else {
+          anchor.remove();
+        }
       }
     });
   }
@@ -59,15 +114,21 @@
   function render(enabled) {
     createPanel(enabled);
     if (enabled) {
+      hideForumMenu();
       replaceForumLogo();
       replaceCustomLinks();
+      removeCollaborationLink();
+      keepOnlyAllowedComplaints();
     }
   }
 
   function observePage() {
     const observer = new MutationObserver(() => {
+      hideForumMenu();
       replaceForumLogo();
       replaceCustomLinks();
+      removeCollaborationLink();
+      keepOnlyAllowedComplaints();
     });
 
     observer.observe(document.documentElement, {
