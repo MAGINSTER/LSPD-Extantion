@@ -101,10 +101,11 @@
     const panel = document.createElement('div');
     panel.id = panelId;
     panel.innerHTML = `
-      <div class="arizona-rp-helper-panel__title">Arizona RP Helper</div>
+      <div class="arizona-rp-helper-panel__title">LSPD Forum Helper</div>
       <div class="arizona-rp-helper-panel__body">
         <p>Форум открыт. Вы можете быстро перейти к основным разделам.</p>
         <a href="https://forum.arizona-rp.com/" target="_blank" rel="noopener noreferrer">Открыть форум</a>
+        <a href="https://discord.gg/hUAs9cy9S" target="_blank" rel="noopener noreferrer">Discord</a>
       </div>
     `;
 

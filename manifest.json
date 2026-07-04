@@ -7,7 +7,6 @@
   "host_permissions": ["https://forum.arizona-rp.com/*"],
   "action": {
     "default_title": "LSPD Forum Helper",
-    "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.svg",
       "48": "icons/icon48.svg",
