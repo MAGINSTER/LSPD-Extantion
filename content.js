@@ -156,29 +156,97 @@
   }
 
   function insertQuickAnswer(answer) {
-    // Ищем текстовое поле для ответа
-    const textareas = document.querySelectorAll('textarea');
-    let targetTextarea = null;
+    // Ищем текстовое поле для ответа (textarea или contenteditable)
+    let targetField = findVisibleAnswerField();
 
-    // Пытаемся найти активное текстовое поле или поле ответа на форуме
+    // Если нашли открытое поле - вставляем текст
+    if (targetField) {
+      insertTextToField(targetField, answer);
+      return;
+    }
+
+    // Если не нашли - ищем кнопку "Ответить" и открываем форму
+    openAnswerForm();
+    
+    // Ищем поле снова через небольшую задержку
+    setTimeout(() => {
+      const field = findVisibleAnswerField();
+      if (field) {
+        insertTextToField(field, answer);
+      } else {
+        alert('Не удалось открыть форму ответа. Пожалуйста, нажмите кнопку "Ответить" вручную.');
+      }
+    }, 500);
+  }
+
+  function findVisibleAnswerField() {
+    // Ищем textarea
+    const textareas = document.querySelectorAll('textarea');
     for (let textarea of textareas) {
       const style = window.getComputedStyle(textarea);
       if (style.display !== 'none' && style.visibility !== 'hidden') {
-        targetTextarea = textarea;
-        break;
+        return textarea;
       }
     }
 
-    if (targetTextarea) {
-      const currentValue = targetTextarea.value;
-      targetTextarea.value = currentValue ? currentValue + '\n' + answer : answer;
-      
-      // Триггер события change для обновления UI
-      targetTextarea.dispatchEvent(new Event('change', { bubbles: true }));
-      targetTextarea.dispatchEvent(new Event('input', { bubbles: true }));
-      targetTextarea.focus();
+    // Ищем contenteditable div (редактор с поддержкой форматирования)
+    const contentEditables = document.querySelectorAll('[contenteditable="true"]');
+    for (let elem of contentEditables) {
+      const style = window.getComputedStyle(elem);
+      if (style.display !== 'none' && style.visibility !== 'hidden') {
+        // Проверяем, что это похоже на поле ввода (имеет минимальную высоту)
+        if (elem.offsetHeight > 50) {
+          return elem;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  function insertTextToField(field, text) {
+    if (field.tagName === 'TEXTAREA') {
+      // Обработка для textarea
+      const currentValue = field.value;
+      field.value = currentValue ? currentValue + '\n' + text : text;
+      field.dispatchEvent(new Event('change', { bubbles: true }));
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+      field.focus();
     } else {
-      alert('Текстовое поле для ответа не найдено. Откройте форму ответа.');
+      // Обработка для contenteditable div
+      const currentContent = field.innerHTML;
+      const textWithBr = text.replace(/\n/g, '<br>');
+      
+      if (currentContent && currentContent !== '<p><br></p>' && currentContent !== '<p></p>' && currentContent.trim()) {
+        field.innerHTML = currentContent + '<br><br>' + textWithBr;
+      } else {
+        field.innerHTML = textWithBr;
+      }
+      
+      field.dispatchEvent(new Event('change', { bubbles: true }));
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+      field.focus();
+      
+      // Перемещаем курсор в конец
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.selectNodeContents(field);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  }
+
+  function openAnswerForm() {
+    // Ищем кнопку "Ответить" на странице
+    const buttons = document.querySelectorAll('button, [role="button"], a');
+    for (let btn of buttons) {
+      const text = btn.textContent.toLowerCase().trim();
+      // Ищем кнопку "Ответить", "Написать ответ" и т.д.
+      if (text.includes('ответ') || text.includes('reply') || text.includes('написать')) {
+        btn.click();
+        return;
+      }
     }
   }
 
