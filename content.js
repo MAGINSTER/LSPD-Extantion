@@ -147,10 +147,39 @@
     chrome.runtime.onMessage.addListener((message) => {
       if (message?.type === 'toggle-helper') {
         render(Boolean(message.enabled));
+      } else if (message?.type === 'insert-quick-answer') {
+        insertQuickAnswer(message.answer);
       }
     });
 
     observePage();
+  }
+
+  function insertQuickAnswer(answer) {
+    // Ищем текстовое поле для ответа
+    const textareas = document.querySelectorAll('textarea');
+    let targetTextarea = null;
+
+    // Пытаемся найти активное текстовое поле или поле ответа на форуме
+    for (let textarea of textareas) {
+      const style = window.getComputedStyle(textarea);
+      if (style.display !== 'none' && style.visibility !== 'hidden') {
+        targetTextarea = textarea;
+        break;
+      }
+    }
+
+    if (targetTextarea) {
+      const currentValue = targetTextarea.value;
+      targetTextarea.value = currentValue ? currentValue + '\n' + answer : answer;
+      
+      // Триггер события change для обновления UI
+      targetTextarea.dispatchEvent(new Event('change', { bubbles: true }));
+      targetTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+      targetTextarea.focus();
+    } else {
+      alert('Текстовое поле для ответа не найдено. Откройте форму ответа.');
+    }
   }
 
   if (document.readyState === 'loading') {
